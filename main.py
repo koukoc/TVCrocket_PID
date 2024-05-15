@@ -91,6 +91,11 @@ def f(t,y):
 
     p, q, r, u, v, w, q0, q1, q2, q3,Xinertial,Yinertial,Zinertial,mass,masscenter,ix,iy,iz = y
 
+    qmag = np.sqrt(q0**2+q1**2+q2**2+q3**2)
+    q0 = q0/qmag
+    q1 = q1/qmag
+    q2 = q2/qmag
+    q3 = q3/qmag
     
     velocityBody = np.array([[u],[v],[w]])
     T = np.array([[q0**2 + q1**2 - q2**2 - q3**2, 2*(q1*q2 + q0*q3), 2*(q1*q3 - q0*q2)]
@@ -118,9 +123,9 @@ def f(t,y):
     dynamicPressure = 0.5*air.density*velocityMag**2
 
     # aerodynamic force from angle of attack
-    Liftaoa = dynamicPressure*aerodynamic.CLalpha*aerodynamic.Sref
-    Dragaoa = dynamicPressure*aerodynamic.CDalpha*aerodynamic.Sref
-    sideSlipaoa = dynamicPressure*aerodynamic.CYalpha*aerodynamic.Sref
+    Liftaoa = dynamicPressure*aerodynamic.CLalpha*aerodynamic.Sref*AoA
+    Dragaoa = dynamicPressure*aerodynamic.CDalpha*aerodynamic.Sref*AoA
+    sideSlipaoa = dynamicPressure*aerodynamic.CYalpha*aerodynamic.Sref*AoA
 
     fax_aoa = -(-Liftaoa*np.sin(AoA) + Dragaoa*np.sin(AoA))
     fay_aoa = sideSlipaoa
@@ -128,9 +133,9 @@ def f(t,y):
 
     # aerodynamic force from side slip angle
 
-    Liftbeta = dynamicPressure*aerodynamic.CLbeta*aerodynamic.Sref
-    Dragbeta = dynamicPressure*aerodynamic.CDbeta*aerodynamic.Sref
-    sideSlipbeta = dynamicPressure*aerodynamic.CYbeta*aerodynamic.Sref
+    Liftbeta = dynamicPressure*aerodynamic.CLbeta*aerodynamic.Sref*beta
+    Dragbeta = dynamicPressure*aerodynamic.CDbeta*aerodynamic.Sref*beta
+    sideSlipbeta = dynamicPressure*aerodynamic.CYbeta*aerodynamic.Sref*beta
 
     fax_beta = sideSlipbeta*np.sin(beta) - Dragbeta*np.cos(beta)
     fay_beta = sideSlipbeta*np.cos(beta) + Dragbeta*np.sin(beta)
@@ -198,7 +203,7 @@ y0 =  [0,0,0,200,0,0,0,0,0,1,0,0,1000,INITIAL_MASS,INITIALMASSCENTER,INITIX,INIT
 # initial condition
 t0 = 0
 tfinal = 12
-ts = np.linspace(t0, tfinal, 90000)
+ts = np.linspace(t0, tfinal, 3000)
 
 sol = solve_ivp(f, [t0, tfinal], y0, t_eval=ts,rtol=1e-13,atol=1e-14)
 
@@ -206,12 +211,14 @@ p, q, r, u, v, w, q0, q1, q2, q3,Xinertial,Yinertial,Zinertial,mass,masscenter,i
 phi = []
 theta = []
 psi = []
-c_eta = []
-c_zeta = []
+AoA = []
+Beta = []
 for index in range(len(q0)):
    phi.append(np.arctan(2*(q2[index]*q3[index] + q0[index]*q1[index])/(q0[index]**2 - q1[index]**2 - q2[index]**2 + q3[index]**2)))
    theta.append(np.arcsin(-2 * (q1[index] * q3[index] - q0[index] * q2[index])))
    psi.append(np.arctan(2*(q1[index]*q2[index] + q0[index]*q3[index])/(q0[index]**2 + q1[index]**2 - q2[index]**2 - q3[index]**2)))
+   AoA.append(np.arctan(w[index]/u[index]))
+   Beta.append(np.arcsin(v[index]/np.sqrt(u[index]**2+v[index]**2+w[index]**2)))
 #    c_eta.append(KP2THETA * (r_theta_dot_sp[index]-q[index]) + KITHETA * theta_dot_err_sum[index])
 #    c_zeta.append(np.arcsin((KP2PSI * (r_psi_dot_sp[index]-r[index]) + KIPSI * psi_dot_err_sum[index]) * IZ / 2 / THRUST / LENGTHARM / np.cos(c_eta[index])))
 
@@ -286,3 +293,11 @@ pylab.plot(sol.t, Zinertial, label='Z(m/s)')
 pylab.legend()
 pylab.xlabel('t(s)')
 pylab.savefig('RocketPotition.png')
+
+plt.figure(9,dpi=1200)
+pylab.plot(sol.t, AoA, label='AoA(m/s)')
+pylab.plot(sol.t, Beta, label='Beta(m/s)')
+
+pylab.legend()
+pylab.xlabel('t(s)')
+pylab.savefig('RocketFlightPathAngle.png')
