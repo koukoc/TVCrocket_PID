@@ -1,4 +1,6 @@
 import numpy as np
+GAMMA = 1.4
+IDEALGASCONSTANT = 287.057
 class AirProperties:
     def __init__(self,height):
         assert type(height) is float or int,'wrong input'
@@ -19,3 +21,4 @@ class AirProperties:
             self.pressure = 2.488 * np.power(((self.Temperature + 273.1)/216.6),-11.388)
         
         self.density = self.pressure/(0.2869*(self.Temperature+273.1))
+        self.SpeedofSound = np.sqrt(GAMMA*IDEALGASCONSTANT-(self.Temperature-273.15))      
