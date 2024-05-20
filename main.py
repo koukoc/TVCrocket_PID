@@ -116,10 +116,10 @@ def f(t,y):
                   ,[2*(q1*q2 - q0*q3), q0**2 - q1**2 + q2**2 - q3**2, 2*(q2*q3 + q0*q1)]
                   ,[2*(q1*q3 + q0*q2), 2*(q2*q3 - q0*q1), q0**2 - q1**2 - q2**2 + q3**2]])
     eta = np.deg2rad(0)
-    zeta =np.deg2rad(3)
+    zeta =np.deg2rad(0)
     mtp = 0
-    mtq = - (TVCPOINT - masscenter) * thrust * np.sin(eta)
-    mtr = - (TVCPOINT - masscenter) * thrust * np.cos(eta) * np.sin(zeta)
+    mtq =  (TVCPOINT - masscenter) * thrust * np.sin(eta)
+    mtr =  (TVCPOINT - masscenter) * thrust * np.cos(eta) * np.sin(zeta)
     
 
     # TVC thrust
@@ -215,8 +215,8 @@ def f(t,y):
 # y = [p, q, r, u, v, w, q0, q1, q2, q3,Xinertial,Yinertial,Zinertial,mass,masscenter,ix,iy,iz]
 # k0 =  [0.0, 0.0, 0.0, 200, 0, 0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,1000.0, INITIAL_MASS, INITIALMASSCENTER, INITIX, INITIY, INITIZ]
 y0 =  [0.0,0.0,0.0
-       ,200,1,0,
-       0.7372773,0, 0.6755902, 0,
+       ,200,0,0,
+       0.7933533,0, 0.6087614, 0, 
        0,0,-1000,
        INITIAL_MASS,
        INITIALMASSCENTER,
@@ -332,8 +332,9 @@ ax.set_xlabel('X Position (m)')
 ax.set_ylabel('Y Position (m)')
 ax.set_zlabel('Z Position (m)')
 ax.set_title('Rocket Trajectory')
-ax.set_xlim([-2000, 3000])
+ax.set_xlim([-2000, 9000])
 ax.set_ylim([-2000, 3000])
+ax.set_zlim([ 0, 9000])
 pylab.savefig('Rocketpath.png')
 plt.show()
 
